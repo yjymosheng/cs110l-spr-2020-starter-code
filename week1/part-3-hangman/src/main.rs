@@ -32,9 +32,83 @@ fn main() {
     // Note: given what you know about Rust so far, it's easier to pull characters out of a
     // vector than it is to pull them out of a string. You can get the ith character of
     // secret_word by doing secret_word_chars[i].
-    let secret_word_chars: Vec<char> = secret_word.chars().collect();
+    let secret_word_chars: Vec<(char, bool)> = secret_word.chars().map(|s| (s, false)).collect();
+    println!("Welcome to CS110L Hangman!");
     // Uncomment for debugging:
-    // println!("random word: {}", secret_word);
+    println!("random word: {}", secret_word);
+    let mut contain: Vec<char> = Vec::new();
+    let mut count = 0;
+    show(secret_word_chars, &mut contain, &mut count);
+}
 
-    // Your code here! :)
+fn show(mut secret_word_chars: Vec<(char, bool)>, contain: &mut Vec<char>, count: &mut u32) {
+    loop {
+        print!("The word so far is ");
+        secret_word_chars.iter().for_each(|(val, a)| {
+            if *a == true {
+                print!("{}", val)
+            } else {
+                print!("-")
+            }
+        });
+        println!("");
+
+        print!("You have guessed the following letters: ");
+        contain.iter().for_each(|s| print!("{}", s));
+
+        // Your code here! :)
+        println!(
+            "\nYou have {} guesses left",
+            secret_word_chars
+                .iter()
+                .filter(|(_, a)| *a == false)
+                .count()
+        );
+
+        print!("Please guess a letter: ");
+        io::stdout().flush().expect("Error flushing stdout.");
+        let mut guess = String::new();
+        io::stdin()
+            .read_line(&mut guess)
+            .expect("Error reading line.");
+        let mut flag = false;
+
+        match guess.trim().chars().next() {
+            Some(a) => {
+                let guess = a;
+                contain.push(guess);
+                for (val, a) in secret_word_chars.iter_mut() {
+                    if *val == guess {
+                        *a = true;
+                        flag = true;
+                    }
+                }
+            }
+            None => {
+                flag = true;
+            }
+        }
+
+        if flag == false {
+            println!("Sorry, that letter is not in the word");
+            *count += 1;
+        }
+
+        println!("");
+
+        if secret_word_chars
+            .iter()
+            .filter(|(_, a)| *a == false)
+            .count()
+            == 0
+        {
+            println!("Congratulations you guessed the secret word: lobster!");
+            break;
+        }
+
+        if *count >= NUM_INCORRECT_GUESSES {
+            println!("Sorry, you ran out of guesses!");
+            break;
+        }
+    }
 }
