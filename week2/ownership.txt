@@ -10,6 +10,8 @@ fn main() {
 }
 ```
 
+from ref1 to ref3,  s has been borrowed triple which are immutable .
+so it coundn't be borrowed as mutable
 
 
 Example 2:
@@ -19,6 +21,9 @@ fn drip_drop() -> &String {
     return &s;
 }
 ```
+
+the pointer of s is a local variable which would be dropped after function returned 
+
 
 
 
@@ -32,3 +37,7 @@ fn main() {
     println!("{}", s2);
 }
 ```
+
+from the     let s2: String = v[0];
+
+s2 should be the borrowed v[0] but the type of s2 be writened as String .
