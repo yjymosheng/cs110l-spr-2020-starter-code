@@ -1,5 +1,7 @@
 use std::env;
 
+use ps_utils::{get_child_processes, get_target};
+
 mod open_file;
 mod process;
 mod ps_utils;
@@ -10,11 +12,26 @@ fn main() {
         println!("Usage: {} <name or pid of target>", args[0]);
         std::process::exit(1);
     }
-    #[allow(unused)] // TODO: delete this line for Milestone 1
     let target = &args[1];
+    let processdata = get_target(&target).expect("no this name command");
+    let pro = match processdata {
+        None => {
+            println!("no process been matched");
+            std::process::exit(1);
+        }
+        Some(pro) => {
+            // println!("processe matched pid is {}", pro.pid);
+            pro
+        }
+    };
+    pro.print();
 
+    let child_process = get_child_processes(pro.pid).expect("child error");
+    for ele in child_process {
+        ele.print();
+        // println!("");
+    }
     // TODO: Milestone 1: Get the target Process using psutils::get_target()
-    unimplemented!();
 }
 
 #[cfg(test)]
@@ -30,6 +47,13 @@ mod test {
     #[test]
     fn test_exit_status_valid_target() {
         let mut subprocess = start_c_program("./multi_pipe_test");
+        // let code = Command::new("./target/debug/inspect-fds")
+        //     .args(&[&subprocess.id().to_string()])
+        //     .status()
+        //     .expect("Could not find target/debug/inspect-fds. Is the binary compiled?")
+        //     .code()
+        //     .expect("Program was unexpectedly terminated by a signal");
+        // println!("{}", code);
         assert_eq!(
             Command::new("./target/debug/inspect-fds")
                 .args(&[&subprocess.id().to_string()])
